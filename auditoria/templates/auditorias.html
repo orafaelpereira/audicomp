@@ -1,0 +1,41 @@
+<!doctype html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" crossorigin="anonymous">
+
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Histórico de Auditorias</h2>
+    <a href="/" class="btn btn-outline-secondary">Voltar</a>
+  </div>
+
+  <div class="table-responsive">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Relatório</th>
+        <th>Local</th>
+        <th>Auditor</th>
+        <th>Data</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for a in auditorias %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ a.num_relatorio }}</td>
+        <td>{{ a.local }}</td>
+        <td>{{ a.auditor }}</td>
+        <td>{{ a.data }}</td>
+        <td><a class="btn btn-sm btn-primary" href="{% url 'auditoria_detail' a.id %}">Ver Não Conformidades</a></td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6">Nenhuma auditoria encontrada.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>

@@ -1,0 +1,21 @@
+<h2>Nova Auditoria</h2>
+
+<form method="post">
+    {% csrf_token %}
+
+    <label>Nº Relatório</label><br>
+    <input type="number" name="num_relatorio" value="{{proximo}}"><br><br>
+
+
+    <label>Local</label><br>
+    <input type="text" name="local"><br><br>
+
+    <label>Auditor</label><br>
+    {% if request.user.is_authenticated %}
+      <input type="text" name="auditor" value="{{ request.user.get_full_name|default:request.user.username }}" readonly class="form-control"><br><br>
+    {% else %}
+      <input type="text" name="auditor" class="form-control"><br><br>
+    {% endif %}
+
+    <button type="submit">Iniciar Auditoria</button>
+</form>
