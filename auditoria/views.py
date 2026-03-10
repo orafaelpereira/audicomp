@@ -1,8 +1,10 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect # type: ignore
+from django.contrib.auth import authenticate, login, logout # type: ignore
+from django.contrib.auth.decorators import login_required # type: ignore
 from .models import Auditoria, Item, Resposta
-
+from django.db.models import Case, When, Value, IntegerField # type: ignore
+from collections import OrderedDict
+from .models import Item
 
 def inicio(request):
     auditorias = Auditoria.objects.all().order_by('-data')[:5]
@@ -91,3 +93,24 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('/')
+
+
+def auditoria_view(request):
+    # Sequência exata dos grupos
+    ordem_grupos = [
+        'REAÇÃO DAS PESSOAS',
+        'EPI´S',
+        'FERRAMENTAS E EQUIPAMENTOS',
+        'PROCEDIMENTOS',
+        'ORDEM, LIMPEZA E ARRUMAÇÃO'
+    ]
+
+    itens = Item.objects.all().order_by('id')  # garante ordem interna
+
+    # Agrupa manualmente em OrderedDict
+    grupos = OrderedDict()
+    for grupo_nome in ordem_grupos:
+        grupos[grupo_nome] = [item for item in itens if item.grupo.strip().upper() == grupo_nome.strip().upper()]
+
+    context = {'grupos': grupos}
+    return render(request, 'itens.html', context)
