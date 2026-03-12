@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect # type: ignore
 from django.contrib.auth import authenticate, login, logout # type: ignore
-from django.contrib.auth.decorators import login_required # type: ignore
+from django.contrib.auth.decorators import login_required, user_passes_test # type: ignore
+from django.contrib.auth.models import User # type: ignore
 from .models import Auditoria, Item, Resposta
 from django.db.models import Case, When, Value, IntegerField # type: ignore
 from collections import OrderedDict
@@ -93,6 +94,40 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('/')
+
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def criar_usuario(request):
+    error = None
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        email = request.POST.get('email', '').strip()
+        password1 = request.POST.get('password1', '')
+        password2 = request.POST.get('password2', '')
+        is_staff = bool(request.POST.get('is_staff'))
+
+        if not username or not password1:
+            error = 'Usuário e senha são obrigatórios.'
+        elif password1 != password2:
+            error = 'As senhas não conferem.'
+        elif User.objects.filter(username=username).exists():
+            error = 'Nome de usuário já existe.'
+        else:
+            user = User.objects.create_user(
+                username=username,
+                password=password1,
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
+            )
+            user.is_staff = is_staff
+            user.save()
+            return redirect('login')
+
+    return render(request, 'criar_usuario.html', {'error': error})
 
 
 def auditoria_view(request):
